@@ -407,8 +407,8 @@
       title: "Parkeren & Camera",
       subtitle: "Hulp bij manoeuvreren",
       opties: [
-        "Parkeersensoren achter",
-        "Parkeersensoren voor en achter",
+        "Parkeersensoren",
+        "360-camera",
         "Achteruitrijcamera",
       ]
     },
@@ -422,7 +422,6 @@
         "Panoramadak",
         "Lederen bekleding",
         "Stoelverwarming",
-        "Extra getint glas vanaf de b-stijl",
       ]
     },
     {
@@ -432,18 +431,10 @@
       subtitle: "Hoe de auto eruitziet",
       opties: [
         "Grotere velgen",
+        "Getinte ramen",
       ]
     },
-    {
-      id: "trekhaak",
-      icon: "🔗",
-      title: "Trekhaak",
-      subtitle: "Voor aanhanger of fietsendrager",
-      opties: [
-        "Vaste trekhaak",
-        "Afneembare trekhaak",
-      ]
-    }
+
   ];
 
   // State: { optie: "niet-nodig" | "wenselijk" | "essentieel" }
@@ -540,7 +531,6 @@
     const samenvatting = [
       essentieel.length ? `Essentieel: ${essentieel.join(', ')}` : null,
       wenselijk.length  ? `Wenselijk: ${wenselijk.join(', ')}`   : null,
-      nietNodig.length  ? `Niet nodig: ${nietNodig.join(', ')}`  : null,
     ].filter(Boolean).join(' | ');
 
     // Typebot 'Wait for event' luistert naar 'name', niet 'type'
