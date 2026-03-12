@@ -543,9 +543,9 @@
       nietNodig.length  ? `Niet nodig: ${nietNodig.join(', ')}`  : null,
     ].filter(Boolean).join(' | ');
 
-    // postMessage naar Typebot 'Wait for event' — type = event naam, data = waarde in variabele
+    // Typebot 'Wait for event' luistert naar 'name', niet 'type'
     window.parent.postMessage({
-      type: 'opties-verstuurd',
+      name: 'opties-verstuurd',
       data: samenvatting
     }, '*');
 
