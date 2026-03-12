@@ -543,11 +543,10 @@
       nietNodig.length  ? `Niet nodig: ${nietNodig.join(', ')}`  : null,
     ].filter(Boolean).join(' | ');
 
-    // postMessage naar Typebot (één niveau omhoog = de Typebot iframe)
-    // Typebot vangt dit op via een Script blok met window.addEventListener
+    // postMessage naar Typebot 'Wait for event' — type = event naam, data = waarde in variabele
     window.parent.postMessage({
       type: 'opties-verstuurd',
-      opties: samenvatting
+      data: samenvatting
     }, '*');
 
     showToast('✓ Verstuurd naar je Buddy!');
