@@ -1,0 +1,566 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Auto Opties — Keuzehulp</title>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&family=Ubuntu:wght@300;400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --teal: #6BBAB9;
+      --teal-dark: #284A43;
+      --teal-light: #e8f6f6;
+      --purple: #9B9BDA;
+      --purple-deep: #6062C5;
+      --text: #636466;
+      --white: #ffffff;
+      --shadow: 0 4px 20px rgba(107,186,185,0.15);
+      --shadow-card: 0 2px 12px rgba(40,74,67,0.10);
+    }
+
+    body {
+      font-family: 'Ubuntu', sans-serif;
+      background: linear-gradient(135deg, #e8f6f6 0%, #f0eefa 100%);
+      min-height: 100vh;
+      color: var(--text);
+      padding: 16px;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    /* Header */
+    .header {
+      text-align: center;
+      padding: 28px 0 24px;
+    }
+
+    .header-badge {
+      display: inline-block;
+      background: var(--teal);
+      color: white;
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+
+    h1 {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: clamp(1.4rem, 5vw, 1.9rem);
+      color: var(--teal-dark);
+      letter-spacing: 0.04em;
+      line-height: 1.2;
+      margin-bottom: 8px;
+    }
+
+    .header p {
+      font-size: 0.9rem;
+      color: var(--text);
+      opacity: 0.8;
+    }
+
+    /* Category blocks */
+    .category {
+      background: var(--white);
+      border-radius: 16px;
+      margin-bottom: 12px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+      transition: box-shadow 0.2s ease;
+    }
+
+    .category:hover {
+      box-shadow: 0 4px 24px rgba(107,186,185,0.22);
+    }
+
+    .category-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      cursor: pointer;
+      user-select: none;
+      gap: 12px;
+    }
+
+    .category-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+
+    .category-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--teal-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+
+    .category-title {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--teal-dark);
+      letter-spacing: 0.02em;
+    }
+
+    .category-subtitle {
+      font-size: 0.78rem;
+      color: var(--text);
+      opacity: 0.65;
+      margin-top: 1px;
+    }
+
+    .category-meta {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .selected-count {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 0.78rem;
+      color: var(--teal);
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .selected-count.visible {
+      opacity: 1;
+    }
+
+    .chevron {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--teal-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s ease, background 0.2s;
+      flex-shrink: 0;
+    }
+
+    .chevron svg {
+      width: 12px;
+      height: 12px;
+      stroke: var(--teal);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      transition: stroke 0.2s;
+    }
+
+    .category.open .chevron {
+      transform: rotate(180deg);
+      background: var(--teal);
+    }
+
+    .category.open .chevron svg {
+      stroke: white;
+    }
+
+    /* Options list */
+    .options-list {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .category.open .options-list {
+      max-height: 2000px;
+    }
+
+    .options-inner {
+      padding: 0 20px 16px;
+    }
+
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, var(--teal-light), transparent);
+      margin-bottom: 14px;
+    }
+
+    /* Option row */
+    .option-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 0;
+      border-bottom: 1px solid #f3f3f3;
+      gap: 12px;
+    }
+
+    .option-row:last-child {
+      border-bottom: none;
+    }
+
+    .option-name {
+      font-size: 0.88rem;
+      color: var(--teal-dark);
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Button group */
+    .btn-group {
+      display: flex;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .btn {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 8px;
+      border: 1.5px solid transparent;
+      cursor: pointer;
+      transition: all 0.18s ease;
+      white-space: nowrap;
+      letter-spacing: 0.01em;
+      background: #f5f5f5;
+      color: var(--text);
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn.niet-nodig.active {
+      background: #fdecea;
+      border-color: #e57373;
+      color: #c0392b;
+    }
+
+    .btn.wenselijk.active {
+      background: #fff8e1;
+      border-color: #f9a825;
+      color: #e65100;
+    }
+
+    .btn.essentieel.active {
+      background: #e8f6f6;
+      border-color: var(--teal);
+      color: var(--teal-dark);
+    }
+
+    /* Summary bar */
+    .summary-bar {
+      position: sticky;
+      bottom: 16px;
+      z-index: 10;
+      margin-top: 16px;
+    }
+
+    .summary-inner {
+      background: var(--teal-dark);
+      border-radius: 16px;
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      box-shadow: 0 8px 32px rgba(40,74,67,0.35);
+    }
+
+    .summary-text {
+      flex: 1;
+    }
+
+    .summary-label {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 0.78rem;
+      color: var(--teal);
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .summary-count {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 1.1rem;
+      color: white;
+      font-weight: 700;
+    }
+
+    .send-btn {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 0.9rem;
+      font-weight: 700;
+      background: var(--teal);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.02em;
+      white-space: nowrap;
+    }
+
+    .send-btn:hover {
+      background: #5aa9a8;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 16px rgba(107,186,185,0.4);
+    }
+
+    .send-btn:active {
+      transform: translateY(0);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(-80px);
+      background: var(--teal-dark);
+      color: white;
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 0.85rem;
+      padding: 10px 20px;
+      border-radius: 30px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      z-index: 100;
+      transition: transform 0.3s ease;
+      white-space: nowrap;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Mobile tweaks */
+    @media (max-width: 480px) {
+      body { padding: 10px; }
+      .btn { font-size: 0.68rem; padding: 5px 7px; }
+      .option-name { font-size: 0.83rem; }
+      .category-header { padding: 14px 16px; }
+      .options-inner { padding: 0 16px 14px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+
+  <div class="header">
+    <div class="header-badge">Auto Keuzehulp</div>
+    <h1>Welke opties zijn voor jou belangrijk?</h1>
+    <p>Klap een categorie open en geef aan wat je wilt.</p>
+  </div>
+
+  <!-- Categories will be rendered here -->
+  <div id="categories"></div>
+
+  <div class="summary-bar">
+    <div class="summary-inner">
+      <div class="summary-text">
+        <div class="summary-label">Jouw selectie</div>
+        <div class="summary-count" id="summary-count">0 opties ingevuld</div>
+      </div>
+      <button class="send-btn" onclick="verzenden()">Verstuur →</button>
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const data = [
+    {
+      id: "tech",
+      icon: "📱",
+      title: "Technologie & Navigatie",
+      subtitle: "Connectiviteit en rijhulp",
+      opties: [
+        "Apple CarPlay of Android Auto",
+        "Navigatiesysteem",
+        "Adaptive Cruise Control",
+      ]
+    },
+    {
+      id: "parkeren",
+      icon: "🅿️",
+      title: "Parkeren & Camera",
+      subtitle: "Hulp bij manoeuvreren",
+      opties: [
+        "Parkeersensoren achter",
+        "Parkeersensoren voor en achter",
+        "Achteruitrijcamera",
+      ]
+    },
+    {
+      id: "comfort",
+      icon: "🛋️",
+      title: "Comfort & Interieur",
+      subtitle: "Beleving binnenin",
+      opties: [
+        "Upgrade audiosysteem",
+        "Panoramadak",
+        "Lederen bekleding",
+        "Stoelverwarming",
+        "Extra getint glas vanaf de b-stijl",
+      ]
+    },
+    {
+      id: "exterieur",
+      icon: "✨",
+      title: "Exterieur & Stijl",
+      subtitle: "Hoe de auto eruitziet",
+      opties: [
+        "Grotere velgen",
+      ]
+    },
+    {
+      id: "trekhaak",
+      icon: "🔗",
+      title: "Trekhaak",
+      subtitle: "Voor aanhanger of fietsendrager",
+      opties: [
+        "Vaste trekhaak",
+        "Afneembare trekhaak",
+      ]
+    }
+  ];
+
+  // State: { optie: "niet-nodig" | "wenselijk" | "essentieel" }
+  const state = {};
+
+  function render() {
+    const container = document.getElementById('categories');
+    container.innerHTML = '';
+
+    data.forEach(cat => {
+      const filled = cat.opties.filter(o => state[o]).length;
+
+      const div = document.createElement('div');
+      div.className = 'category';
+      div.id = 'cat-' + cat.id;
+
+      div.innerHTML = `
+        <div class="category-header" onclick="toggle('${cat.id}')">
+          <div class="category-left">
+            <div class="category-icon">${cat.icon}</div>
+            <div>
+              <div class="category-title">${cat.title}</div>
+              <div class="category-subtitle">${cat.subtitle}</div>
+            </div>
+          </div>
+          <div class="category-meta">
+            <span class="selected-count ${filled > 0 ? 'visible' : ''}">${filled > 0 ? filled + '/' + cat.opties.length : ''}</span>
+            <div class="chevron">
+              <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="options-list">
+          <div class="options-inner">
+            <div class="divider"></div>
+            ${cat.opties.map(optie => `
+              <div class="option-row" id="row-${optie.replace(/\s+/g,'-')}">
+                <span class="option-name">${optie}</span>
+                <div class="btn-group">
+                  <button class="btn niet-nodig ${state[optie] === 'niet-nodig' ? 'active' : ''}" onclick="kies('${optie}', 'niet-nodig')">✕</button>
+                  <button class="btn wenselijk ${state[optie] === 'wenselijk' ? 'active' : ''}" onclick="kies('${optie}', 'wenselijk')">Wenselijk</button>
+                  <button class="btn essentieel ${state[optie] === 'essentieel' ? 'active' : ''}" onclick="kies('${optie}', 'essentieel')">Essentieel</button>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      container.appendChild(div);
+    });
+
+    updateSummary();
+  }
+
+  function toggle(id) {
+    const el = document.getElementById('cat-' + id);
+    const isOpen = el.classList.contains('open');
+    // Close all
+    document.querySelectorAll('.category.open').forEach(c => c.classList.remove('open'));
+    if (!isOpen) el.classList.add('open');
+  }
+
+  function kies(optie, waarde) {
+    // Toggle off if same
+    if (state[optie] === waarde) {
+      delete state[optie];
+    } else {
+      state[optie] = waarde;
+    }
+    render();
+
+    // Re-open the category that contains this option
+    data.forEach(cat => {
+      if (cat.opties.includes(optie)) {
+        document.getElementById('cat-' + cat.id).classList.add('open');
+      }
+    });
+  }
+
+  function updateSummary() {
+    const total = Object.keys(state).length;
+    const el = document.getElementById('summary-count');
+    el.textContent = total === 0
+      ? 'Nog niets geselecteerd'
+      : total === 1 ? '1 optie ingevuld' : `${total} opties ingevuld`;
+  }
+
+  function verzenden() {
+    const essentieel = Object.entries(state).filter(([,v]) => v === 'essentieel').map(([k]) => k);
+    const wenselijk  = Object.entries(state).filter(([,v]) => v === 'wenselijk').map(([k]) => k);
+    const nietNodig  = Object.entries(state).filter(([,v]) => v === 'niet-nodig').map(([k]) => k);
+
+    const samenvatting = [
+      essentieel.length ? `Essentieel: ${essentieel.join(', ')}` : null,
+      wenselijk.length  ? `Wenselijk: ${wenselijk.join(', ')}`   : null,
+      nietNodig.length  ? `Niet nodig: ${nietNodig.join(', ')}`  : null,
+    ].filter(Boolean).join(' | ');
+
+    // postMessage naar Typebot (één niveau omhoog = de Typebot iframe)
+    // Typebot vangt dit op via een Script blok met window.addEventListener
+    window.parent.postMessage({
+      type: 'opties-verstuurd',
+      opties: samenvatting
+    }, '*');
+
+    showToast('✓ Verstuurd naar je Buddy!');
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 3000);
+  }
+
+  render();
+</script>
+</body>
+</html>
